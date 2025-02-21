@@ -1,0 +1,16 @@
+<%- include('work/header1') %>
+
+    <div class="top">
+        <h1 class="head">Welcome</h1>
+        <form action="/register" method="POST">
+            <input class="box" type="text" name="name" placeholder="Enter your name"><br>
+            <input class="box" type="email" name="username" placeholder="Enter your Email" required><br>
+            <input class="box" type="password" name="password" placeholder="Enter your Password" required><br>
+            <button class="tap" type="submit">Register</button>
+            <div class="bootam">
+                have an account? <a href="/login" style="color: blue;">Sign up</a>
+            </div>
+        </form>
+    </div>
+
+    <%- include('work/footer') %>
