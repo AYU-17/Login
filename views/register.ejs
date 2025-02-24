@@ -13,4 +13,46 @@
         </form>
     </div>
 
+    <script>
+        const form = document.querySelector('form');
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+    
+          const formData = new FormData(form);
+          const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(formData)
+          });
+    
+          const data = await response.json();
+    
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: 'Login successful',
+              showConfirmButton: false,
+              timer: 500
+            }).then(() => {
+              window.location.href = "/";
+            });
+          }else {
+            Swal.fire({
+              icon: 'info',
+              title: 'already exits....',
+              text: 'try loggin...',
+              showConfirmButton: false,
+              timer: 3000
+            }).then(()=>{
+              window.location.href = "/login";
+            });
+          }
+        });
+      </script>
+    
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <%- include('work/footer') %>

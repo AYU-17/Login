@@ -1,16 +1,18 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pg from "pg";
+import env from "dotenv"; 
 
 const app = express();
 const port = 3000;
+env.config();
 
 const db = new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database: "web",
-    password: "ayush@123",
-    port: 5432,
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
 });
 db.connect();
 
@@ -29,6 +31,10 @@ app.get("/register", (req, res) => {
     res.render("register.ejs");
 });
 
+app.get("/main", (req,res)=>{
+    res.render("main.ejs");
+});
+
 app.post("/register", async (req, res) => {
     const email = req.body.username;
     const password = req.body.password;
@@ -40,14 +46,14 @@ app.post("/register", async (req, res) => {
         ]);
 
         if (checkResult.rows.length > 0) {
-      res.send("Email already exists. Try logging in.");
+            // res.send("Email already exists. Try logging in.");
+            res.json({ success: false });
         } else {
-            const result = await db.query(
-        "INSERT INTO users (email, password, name) VALUES ($1, $2, $3)",
-                [email, password, name]
-            );
+            const result = await db.query("INSERT INTO users (email, password, name) VALUES ($1, $2, $3)", [email, password, name]);
+            // const result = await db.query("INSERT INTO users (email, password) VALUES ($1, $2)", [email, password]);
             console.log(result);
-            res.render("login.ejs");
+            // res.render("login.ejs");
+            res.json({ success: true });
         }
     } catch (err) {
         console.log(err);
@@ -59,22 +65,42 @@ app.post("/login", async (req, res) => {
     const password = req.body.password;
 
     try {
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+        const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
         if (result.rows.length > 0) {
             const user = result.rows[0];
             const storedPassword = user.password;
 
+            // check if 
+
+            const lockoutDuration = 30 * 1000;
+            const currentTime = new Date();
+            const lastAttemptTime = user.last_attempt_time ? new Date(user.last_attempt_time) : new Date(0);
+            const timeDiff = currentTime - lastAttemptTime;
+
+            if (user.login_attempts >= 3 && timeDiff < lockoutDuration) {
+                const remainingTime = lockoutDuration - timeDiff;
+                const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+                return res.json({
+                    success: false,
+                    message: `Account is locked. Try again in ${minutes}m:${seconds}s`
+                });
+            }
+
             if (password === storedPassword) {
-                res.render("main.ejs");
+                await db.query("UPDATE users SET login_attempts = 0, last_attempt_time = NULL, total_attempt = total_attempt + 1, right_attempt = right_attempt + 1 WHERE email = $1", [email]);
+                // res.render("main.ejs");
+                res.json({ success: true });
             } else {
-        res.send("Incorrect Password");
+                await db.query("UPDATE users SET login_attempts = login_attempts + 1, last_attempt_time = CURRENT_TIMESTAMP, total_attempt = total_attempt + 1, wrong_attempt = wrong_attempt + 1 WHERE email = $1", [email]);
+                // res.send("incorrect passsword");
+                res.json({ success: false, message: "Incorrect password" });
             }
         } else {
-      res.send("User not found");
-    } 
-  } catch (err) {
+            // res.send("user not found");
+            res.json({ success: false, message: "user not found, try again." });
+        }
+    } catch (err) {
         console.log(err);
     }
 });
