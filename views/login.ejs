@@ -1,11 +1,23 @@
 <%- include('work/header1') %>
 
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+        <a href="#">Contact</a>
+    </div>
+
     <div class="top">
         <h1 class="head">Welcome Back!</h1>
         <form action="/login" method="POST">
             <div>
                 <input class="box" type="email" name="username" placeholder="Enter your Email" required><br>
                 <input class="box" type="password" name="password" placeholder="Enter your Password" required><br>
+                <label for="roll">Choose Work Roll :</label>
+                <select name="roll">
+                    <option value="admin">admin</option>
+                    <option value="user">user</option>
+                </select><br>
                 <button class="tap" type="submit">Login</button>
                 <div class="bootam">
                     Don't have an account? <a href="/register" style="color: blue;">Sign up</a>
@@ -27,7 +39,6 @@
                 },
                 body: new URLSearchParams(formData)
             });
-
             const data = await response.json();
 
             if (data.success) {
@@ -38,19 +49,19 @@
                     showConfirmButton: false,
                     timer: 1500
                 }).then(() => {
-                    window.location.href = "/main";
+                    window.location.href =data.redirect || '/main';
                 });
-                // window.location.href = "/main";
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
                     text: data.message
                 });
-                // alert(data.message);
             }
         });
     </script>
+
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 

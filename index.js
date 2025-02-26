@@ -1,24 +1,33 @@
 import express from "express";
 import bodyParser from "body-parser";
-import pg from "pg";
-import env from "dotenv";
-
+import session from "express-session";
+import db from "./db.js";
+import { checkUser, updateLoginAttempts,updateLoginwrongAttempts, registerUser } from "./queries.js";
 
 const app = express();
 const port = 3000;
-env.config();
-
-const db = new pg.Client({
-user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false
+}));
+
+// checkRole section 
+const checkRole = (roll) => {
+    return (req, res, next) => {
+        if (req.session.roll === roll) {
+            next();
+        }
+         else {
+            res.status(403).json({ success: false, message: "Unauthorized access" });
+        }
+    };
+};
+
 
 app.get("/", (req, res) => {
     res.render("home.ejs");
@@ -32,39 +41,45 @@ app.get("/register", (req, res) => {
     res.render("register.ejs");
 });
 
-app.get("/main", (req,res)=>{
+app.get("/main",checkRole('user'), (req,res)=>{
     res.render("main.ejs");
 });
+
+app.get("/main1",checkRole('admin'), (req,res)=>{
+    res.render("main1.ejs");
+});
+
+// app.get("/logout", (req,res)=>{
+//     res.render("home.ejs");
+// });
+
 
 app.post("/register", async (req, res) => {
     const email = req.body.username;
     const password = req.body.password;
     const name = req.body.name;
+    const roll = req.body.roll;
 
     try {
-        const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-
-        if (checkResult.rows.length > 0) {
-            // res.send("Email already exists. Try logging in.");
-            res.json({ success: false });
-        } else {
-            const result = await db.query("INSERT INTO users (email, password, name) VALUES ($1, $2, $3)", [email, password, name]);
-            // const result = await db.query("INSERT INTO users (email, password) VALUES ($1, $2)", [email, password]);
-            console.log(result);
-            // res.render("login.ejs");
-            res.json({ success: true });
-        }
+        const result = await registerUser(email, password, name, roll);
+        res.json({ success: true });
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        res.json({ success: false });
     }
 });
 
+
+
+
+
 app.post("/login", async (req, res) => {
+    const roll = req.body.roll;
     const email = req.body.username;
     const password = req.body.password;
 
     try {
-        const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+        const result = await checkUser(email,roll);
         if (result.rows.length > 0) {
             const user = result.rows[0];
             const storedPassword = user.password;
@@ -85,13 +100,21 @@ app.post("/login", async (req, res) => {
                     message: `Account is locked. Try again in ${minutes}m:${seconds}s`
                 });
             }
+            if (password === storedPassword ) {
 
-            if (password === storedPassword) {
-                await db.query("UPDATE users SET login_attempts = 0, last_attempt_time = NULL, total_attempt = total_attempt + 1, right_attempt = right_attempt + 1 WHERE email = $1", [email]);
-                // res.render("main.ejs");
-                res.json({ success: true });
+                req.session.roll = roll;
+                req.session.user = {
+                    email: email,
+                    roll: roll
+                };
+
+                await updateLoginAttempts(email);
+                return res.json({success:true,
+                    redirect: roll === 'admin' ? '/main1' : '/main'
+                });
             } else {
-                await db.query("UPDATE users SET login_attempts = login_attempts + 1, last_attempt_time = CURRENT_TIMESTAMP, total_attempt = total_attempt + 1, wrong_attempt = wrong_attempt + 1 WHERE email = $1", [email]);
+                await updateLoginwrongAttempts(email);
+                // db.query("UPDATE users SET login_attempts = login_attempts + 1, last_attempt_time = CURRENT_TIMESTAMP, total_attempt = total_attempt + 1, wrong_attempt = wrong_attempt + 1 WHERE email = $1", [email]);
                 // res.send("incorrect passsword");
                 res.json({ success: false, message: "Incorrect password" });
             }
@@ -101,8 +124,14 @@ app.post("/login", async (req, res) => {
         }
     } catch (err) {
         console.log(err);
+        res.json({ success: false, message: "Server error" });
     }
 });
+
+// app.post('/logout', (req, res) => {
+//     req.session.destroy();
+//     res.json({ success: true, redirect: '/login' });
+// });
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

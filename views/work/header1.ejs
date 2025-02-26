@@ -15,7 +15,8 @@
         html {
             height: 100%;
             font-family: Arial, sans-serif;
-            background-image: -webkit-linear-gradient(90deg, cornflowerblue, #e4e9fd 50%, #a683e3);
+            /* background-image: -webkit-linear-gradient(90deg, #a683e3 30%,#e4e9fd 30%); */
+            background-color:  #e4e9fd;
         }
 
         h1 {
@@ -25,9 +26,9 @@
         }
 
         .foot{
-            display: flex;
+            /* display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: center; */
             height: 53%;
             text-align: center;
         }
@@ -35,7 +36,10 @@
         .top {
             padding: 20px;
             max-width: 400px;
-            margin: 0 auto;
+            margin-top: 50px;
+            margin-left: 37%;
+            background-color: #a683e3;
+            /* margin: 0 auto; */
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
@@ -60,6 +64,37 @@
         }
         .bootam {
             text-align: center;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #e4e9fd ;
+            overflow: auto;
+        }
+
+        .navbar a {
+            float: left;
+            padding: 12px;
+            color: #51377e;
+            text-decoration: none;
+            font-size: 17px;
+            width: 25%;
+            /* Four links of equal widths */
+            text-align: center;
+        }
+
+        .navbar a:hover {
+            color: black;
+            background-color:#a683e3; 
+        }
+
+        @media screen and (max-width: 500px) {
+            .navbar a {
+                float: none;
+                display: block;
+                width: 100%;
+                text-align: left;
+            }
         }
     </style>
 </head>

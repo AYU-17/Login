@@ -16,23 +16,19 @@
         body,
         html {
             height: 100%;
-            font-family: Arial, sans-serif;
-            background-image: -webkit-linear-gradient(90deg, cornflowerblue, #e4e9fd 50%, #a683e3);
+            margin: 0;
+            font-family: "Lato", sans-serif;
+            background-image: -webkit-linear-gradient(90deg, #a683e3 30%, #e4e9fd 30%);
         }
 
         .welcome-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 53%;
-            /* background-color:cornflowerblue; */
             text-align: center;
         }
 
         .welcome-message {
-            margin-bottom: 10px;
-            margin-top: 220px;
-        }
+            margin-bottom: px;
+            margin-top: 210px;
+        } 
 
         h1 {
             font-size: 3rem;
@@ -45,38 +41,43 @@
             color: #666;
         }
 
-        a {
-            margin-left: 20px;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .button {
-            text-decoration: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            background-color: #4CAF50;
-            color: black;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #45a049;
-        }
-
-        .foot{
+        .foot {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 53%;
             text-align: center;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #e4e9fd ;
+            overflow: auto;
+        }
+
+        .navbar a {
+            float: left;
+            padding: 12px;
+            color: #51377e;
+            text-decoration: none;
+            font-size: 17px;
+            width: 25%;
+            /* Four links of equal widths */
+            text-align: center;
+        }
+
+        .navbar a:hover {
+            color: black;
+            background-color:#a683e3; 
+        }
+
+        @media screen and (max-width: 500px) {
+            .navbar a {
+                float: none;
+                display: block;
+                width: 100%;
+                text-align: left;
+            }
         }
     </style>
 </head>

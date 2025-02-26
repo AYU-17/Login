@@ -1,58 +1,71 @@
 <%- include('work/header1') %>
 
-    <div class="top">
-        <h1 class="head">Welcome</h1>
-        <form action="/register" method="POST">
-            <input class="box" type="text" name="name" placeholder="Enter your name"><br>
-            <input class="box" type="email" name="username" placeholder="Enter your Email" required><br>
-            <input class="box" type="password" name="password" placeholder="Enter your Password" required><br>
-            <button class="tap" type="submit">Register</button>
-            <div class="bootam">
-                have an account? <a href="/login" style="color: blue;">Sign up</a>
-            </div>
-        </form>
-    </div>
+  <div class="navbar">
+    <a href="/">Home</a>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
+    <a href="#">Contact</a>
+  </div>
 
-    <script>
-        const form = document.querySelector('form');
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-    
-          const formData = new FormData(form);
-          const response = await fetch('/register', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(formData)
-          });
-    
-          const data = await response.json();
-    
-          if (data.success) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Success!',
-              text: 'Login successful',
-              showConfirmButton: false,
-              timer: 500
-            }).then(() => {
-              window.location.href = "/";
-            });
-          }else {
-            Swal.fire({
-              icon: 'info',
-              title: 'already exits....',
-              text: 'try loggin...',
-              showConfirmButton: false,
-              timer: 3000
-            }).then(()=>{
-              window.location.href = "/login";
-            });
-          }
+  <div class="top">
+    <h1 class="head">Welcome</h1>
+    <form action="/register" method="POST">
+      <input class="box" type="text" name="name" placeholder="Enter your name"><br>
+      <!-- <input class="box" type="text" name="roll" placeholder="Enter your working_roll"><br> -->
+      <input class="box" type="email" name="username" placeholder="Enter your Email" required><br>
+      <input class="box" type="password" name="password" placeholder="Enter your Password" required><br>
+      <label for="roll">Choose Work Roll :</label>
+      <select name="roll">
+        <option value="admin" >Admin</option>
+        <option value="user" >User</option>
+      </select><br>
+      <button class="tap" type="submit">Register</button>
+      <div class="bootam">
+        have an account? <a href="/login" style="color: #007bff;">Login</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Login successful',
+          showConfirmButton: false,
+          timer: 500
+        }).then(() => {
+          window.location.href = "/";
         });
-      </script>
-    
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'already exits....',
+          text: 'try loggin...',
+          showConfirmButton: false,
+          timer: 3000
+        }).then(() => {
+          window.location.href = "/login";
+        });
+      }
+    });
+  </script>
 
-    <%- include('work/footer') %>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <%- include('work/footer') %>
